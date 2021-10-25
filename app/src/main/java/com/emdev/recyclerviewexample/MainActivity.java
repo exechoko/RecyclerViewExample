@@ -1,5 +1,6 @@
 package com.emdev.recyclerviewexample;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,13 +20,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     //Lista de string
-    String []datos = {"Hola", "Hello", "Welcome"};
-    int contador = 0;
-
+    private String[] datos = {"Hola", "Hello", "Welcome"};
+    private int contador = 0;
     //Lista de personas
-    List<Persona> personas;
+    private List<Persona> personas;
+    private Button btnAgregar;
 
-    Button btnAgregar;
+    private PersonaAdapter adapterPerson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,20 +40,21 @@ public class MainActivity extends AppCompatActivity {
 
         //Genero el listado de personas
         personas = new ArrayList<>();
-        personas.add(new Persona("Exequiel","33 años","Paraná - Entre Ríos"));
-        personas.add(new Persona("Ernesto","23 años","Oro Verde - Entre Ríos"));
-        personas.add(new Persona("Nicolas","20 años","Flores - Buenos Aires"));
-        personas.add(new Persona("Lucía","33 años","Rosario - Santa Fe"));
-        personas.add(new Persona("Matías","15 años","Madrid - España"));
+        personas.add(new Persona("Exequiel", "33 años", "Paraná - Entre Ríos"));
+        personas.add(new Persona("Ernesto", "23 años", "Oro Verde - Entre Ríos"));
+        personas.add(new Persona("Nicolas", "20 años", "Flores - Buenos Aires"));
+        personas.add(new Persona("Lucía", "33 años", "Rosario - Santa Fe"));
+        personas.add(new Persona("Matías", "15 años", "Madrid - España"));
         //--------
 
 
         RecyclerView recyclerView = findViewById(R.id.recycler);
-        //AppAdapter adapter = new AppAdapter(items);
-        PersonaAdapter adapterPerson = new PersonaAdapter(personas);
+
+        adapterPerson = new PersonaAdapter(personas, item -> {
+            showConfirmDialog(item);
+        });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //recyclerView.setAdapter(adapter);
         recyclerView.setAdapter(adapterPerson);
 
         btnAgregar.setOnClickListener(v -> {
@@ -67,8 +69,22 @@ public class MainActivity extends AppCompatActivity {
 
 //            Agrega personas
             personas.add(new Persona("Pablo", "50 años", "El Cairo - Egipto"));
-            adapterPerson.notifyItemInserted(personas.size()-1);
+            adapterPerson.notifyItemInserted(personas.size() - 1);
 
         });
+    }
+
+    private void showConfirmDialog(Persona item) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogThemeEliminar);
+        builder.setTitle("Eliminar")
+                .setMessage("Está seguro que desea eliminar")
+                .setCancelable(false)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton("Eliminar", (dialog, which) -> {
+                    adapterPerson.removeAndUpdate(item);
+                })
+                .setNegativeButton("Cancelar", null);
+
+        builder.show();
     }
 }
